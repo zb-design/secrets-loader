@@ -9,11 +9,16 @@
     "watch": "yarn build && tsc -watch"
   },
   "devDependencies": {
+    "module-alias": "^2.2.3",
     "rimraf": "^5.0.5",
-    "typescript": "^5.4.5",
-    "module-alias": "^2.2.3"
+    "typescript": "^5.4.5"
   },
   "_moduleAliases": {
     "@classes": "dist/classes"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.4.0",
+    "@azure/keyvault-secrets": "^4.8.0",
+    "@types/node": "^20.14.11"
   }
 }
