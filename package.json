@@ -1,0 +1,19 @@
+{
+  "name": "secrets-loader",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "ben futterleib",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist and tsc",
+    "watch": "yarn build && tsc -watch"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5",
+    "module-alias": "^2.2.3"
+  },
+  "_moduleAliases": {
+    "@classes": "dist/classes"
+  }
+}
