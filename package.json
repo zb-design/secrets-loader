@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf dist and tsc",
-    "watch": "yarn build && tsc -watch"
+    "watch": "yarn build && tsc -watch",
+    "run:development": "dotenvx run -- node dist/index.js"
   },
   "devDependencies": {
     "module-alias": "^2.2.3",
@@ -19,6 +20,8 @@
   "dependencies": {
     "@azure/identity": "^4.4.0",
     "@azure/keyvault-secrets": "^4.8.0",
-    "@types/node": "^20.14.11"
+    "@dotenvx/dotenvx": "^1.6.4",
+    "@types/node": "^20.14.11",
+    "fs": "^0.0.1-security"
   }
 }

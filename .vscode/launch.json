@@ -9,6 +9,7 @@
       "request": "launch",
       "name": "launch",
       "outputCapture": "std",
+      "envFile": "${workspaceFolder}/env/development.env",
       "program": "${workspaceFolder}/src/index.ts",
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
       "skipFiles": [
