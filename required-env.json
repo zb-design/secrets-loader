@@ -2,6 +2,5 @@
   "DB_PASSWORD": "string",
   "DB_HOSTNAME": "string",
   "DB_USERNAME": "string",
-  "DB_PORT": "number",
-  "MISSING": "string"
+  "DB_PORT": "number"
 }
