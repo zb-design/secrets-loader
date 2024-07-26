@@ -7,12 +7,14 @@ type moduleOptions = {
   envManifest: string;
   secretStore: string;
   exitOnMissing: boolean;
+  secretPlaceholder: string;
 };
 
 type applicationVariable = {
   localKey: string;
   keyVaultKey: string;
   value: any;
+  secret: boolean;
   dataType: string;
 };
 
@@ -44,7 +46,8 @@ export class SecretsLoader {
       this.moduleOptions = {
         envManifest: "required-env.json",
         secretStore: "Azure",
-        exitOnMissing: true
+        exitOnMissing: true,
+        secretPlaceholder: "FROM_SECRET"
       }
     } else {
       this.moduleOptions = moduleOptions;
@@ -74,6 +77,7 @@ export class SecretsLoader {
         localKey: key,
         keyVaultKey: key.replace("_", "-"), //azure key vault only allows - instead of _
         value: process.env[key],
+        secret: process.env[key] === this.moduleOptions.secretPlaceholder,
         dataType: String(value)
       }
       appVariables.push(newVar);
@@ -86,7 +90,7 @@ export class SecretsLoader {
   
   private async loadSecretsFromStore(client: SecretClient, variableList: applicationVariable[]): Promise<void> {
     for (let item of variableList) {
-      if (item.value === "FROM_SECRET") {
+      if (item.value === this.moduleOptions.secretPlaceholder) {
         const secret = await client.getSecret(item.keyVaultKey);
         item.value = secret.value;
       }
@@ -95,17 +99,28 @@ export class SecretsLoader {
   
   private async loadIntoProcessEnv(variableList: applicationVariable[]) {
     for (let item of variableList) {
+      const value = item.secret ? "redacted" : item.value;
       process.env[item.localKey] = item.value;
-      this.logger.debug(`[INFO] loaded variable ${item.localKey} with value ${item.value}`)
+      this.logger.debug(`[INFO] loaded variable ${item.localKey} with ${item.dataType} value ${value}`)
     }
   }
-  
+
+  private validateNumber(item: applicationVariable, parseFunction: Function): Number{
+    const result = parseFunction(item.value)
+    if (Number.isNaN(result)) {
+      throw new Error (`Error: ${item.localKey} value ${item.secret ? "": item.value + " " }cannot be converted to a ${item.dataType}`)
+    }
+    return result;
+  }
+
   private typeCheckVariables(variableList: applicationVariable[]): void {
     for (let item of variableList) {
       const requiredDataType = item.dataType;
-  
-      if (typeof requiredDataType !== requiredDataType) {
-        this.logger.log(`[ERR] '${item.localKey}' variable required datatype '${requiredDataType}' does not match '${typeof requiredDataType}'`)
+
+      if (requiredDataType === "integer") {
+        item.value = this.validateNumber(item, parseInt);
+      } else if (requiredDataType === "float") {
+        item.value = this.validateNumber(item, parseFloat);
       }
     }
   }
@@ -120,16 +135,18 @@ export class SecretsLoader {
         this.logger.log(JSON.stringify(result.missingVariables));
         if (this.moduleOptions.exitOnMissing) throw new Error("Missing reqired env vars");
       }
-      this.typeCheckVariables(result.envVariableList);
       await this.loadSecretsFromStore(this.vaultClient, result.envVariableList);
+      this.typeCheckVariables(result.envVariableList);
       this.loadIntoProcessEnv(result.envVariableList);
     } catch (error) {
       if (error.code === "ENOENT" && error.path === this.moduleOptions.envManifest) {
         this.logger.log(`Error: secrets loader unable to find required env manifest file '${this.moduleOptions.envManifest}'`);
       } else if (error.name === "AggregateAuthenticationError") {
         this.logger.log("Error: secrets loader authentication to Azure secret store failed");
+      } else {
+        this.logger.log(error);
       }
-      process.exit(1);
+      throw error;
     }
   }
 }

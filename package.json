@@ -7,9 +7,11 @@
   "scripts": {
     "build": "rimraf dist and tsc",
     "watch": "yarn build && tsc -watch",
+    "test": "jest",
     "run:development": "dotenvx run -- node dist/index.js"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "module-alias": "^2.2.3",
     "rimraf": "^5.0.5",
     "typescript": "^5.4.5"
