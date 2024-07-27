@@ -1,0 +1,4 @@
+{
+  "DB_HOSTNAME": "string",
+  "FLOAT_NUMBER": "float"
+}
