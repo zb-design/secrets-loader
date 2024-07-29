@@ -5,6 +5,7 @@ async function main() {
     envManifest: "env/required-env.json"
   });
   await secretLoader.configure();
+  console.log(process.env);
 }
 
 main();

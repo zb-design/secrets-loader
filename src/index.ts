@@ -83,7 +83,7 @@ export class SecretsLoader {
       missingVariables: missingVariables
     }
   }
-  
+
   private async loadSecretsFromStore(client: SecretClient, variableList: applicationVariable[]): Promise<void> {
     for (let item of variableList) {
       if (item.value === this.moduleOptions.secretPlaceholder) {
